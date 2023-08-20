@@ -4,4 +4,9 @@ Admin/__pycache__
 Admin/migrations/__pycache__
 AdminDashboard/__pycache__
 venv
+static
 #files
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml

@@ -271,7 +271,7 @@
                   <h1 class="modal-title fs-5 " id="staticBackdropLabel">Grant Letter Generation</h1>
                 </div>
                 <div class="modal-body d-flex flex-column align-items-center justify-content-center">
-                    <button type="button" class="btn btn-success m-2" onclick="generateGrantLetter('{{ user.sub }}')">Generate File</button>
+                    <button type="button" class="btn btn-success m-2" onclick="generateGrantLetter('{{ user.username }}','{{ user.sub }}')">Generate File</button>
                     <h6 id="status_{{ user.sub }}"></h6>
                     <div class="flex-row justify-content-center mt-5 conditional-buttons_{{ user.sub }}" style="display: none;">
                         <button type="button" class="btn btn-primary m-2 btn-sm" onclick="callDjangoRoute()">Preview File</button>
@@ -431,38 +431,40 @@
     }
   </script>
   <script>
-    function generateGrantLetter(userSub) {
-    console.log('Function called with userSub:', userSub);
+    function generateGrantLetter(username,sub) {
+    console.log('Function called with username:', username);
 
     $.ajax({
-        type: 'GET',
+        type: 'POST',
         url: 'generate', // Verify that this URL is correct
+        headers: {
+              "X-CSRFToken": getCookie("csrftoken")
+        },
+        data: {
+                'username': username,
+        },
         success: function(response) {
             console.log('Response:', response);
-
-            if (response.status === true) {
-                console.log('Status is true');
-
-                // Update the status
-                $('#status_' + userSub).text('File Generated');
-
-                // Show the other buttons if the status is true
-                $('.conditional-buttons_' + userSub).css('display', 'flex');
-            }
-            else{
-              console.log('Response:', response.status);
-              $('.conditional-buttons_' + userSub).hide();
-            }
+            console.log('Status is true');
+            $('#status_' + sub).text('File Generated');
+            $('.conditional-buttons_' + sub).css('display', 'flex');
         },
-        error: function(error) {
-            console.error('Error:', error);
+        error: function (jqXHR, textStatus, errorThrown) {
+                  console.error("AJAX Error:", textStatus, errorThrown);
+                  console.log("Response:", jqXHR.responseText);
+                  const response = JSON.parse(jqXHR.responseText);
+                  Swal.fire({
+                    title: 'Error!',
+                    text: response.msg,
+                    icon: 'error',
+                    confirmButtonText: 'Close'
+                  })
         }
     });
 }
-
 </script>
 
-<script>
+<!-- <script>
   document.addEventListener("DOMContentLoaded", function() {
     const uploadButtons = document.querySelectorAll(".upload-button");
 
@@ -549,8 +551,110 @@
       return cookieValue;
     }
   });
+</script> -->
+
+
+<script>
+  $(document).ready(function () {
+    $(".upload-button").click(function () {
+        const modal = $(this).closest(".modal");
+        const userId = modal.attr("id").replace("uploadModal", "");
+        const uploadForm = modal.find(".upload-form");
+        let timerInterval;
+
+        // Check if uploadForm is an HTML form element
+        if (uploadForm[0] instanceof HTMLFormElement) {
+            const formData = new FormData(uploadForm[0]); // Use [0] to access the DOM element
+
+            formData.append("user_id", userId);
+
+            // Get user.sub and user.username from data attributes
+            const userSub = modal.data("user-sub");
+            const userName = modal.data("user-username");
+
+            formData.append("user_sub", userSub);
+            formData.append("user_username", userName);
+
+            $.ajax({
+                type: "POST",
+                url: "/dashboard", // Replace with your Django URL
+                data: formData,
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken")
+                },
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    // Handle the response from the server
+                    console.log(data);
+
+                    // Close the modal after successful upload
+                    modal.hide();
+                    $("body").removeClass("modal-open");
+                    modal.removeAttr("aria-modal");
+                    modal.removeAttr("role");
+                    modal.attr("aria-hidden", "true");
+
+                    Swal.fire({
+                        title: 'Auto close alert!',
+                        html: 'I will close in <b></b> milliseconds.',
+                        timer: 2000,
+                        timerProgressBar: true,
+                        didOpen: function () {
+                            Swal.showLoading();
+                            var b = Swal.getHtmlContainer().querySelector('b');
+                            var timerInterval = setInterval(function () {
+                                b.textContent = Swal.getTimerLeft();
+                            }, 100);
+                        },
+                        willClose: function () {
+                            clearInterval(timerInterval);
+                        }
+                    }).then(function (result) {
+                        if (result.dismiss === Swal.DismissReason.timer) {
+                            console.log('I was closed by the timer');
+                            window.location.reload();
+                        }
+                    });
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                  console.error("AJAX Error:", textStatus, errorThrown);
+                  console.log("Response:", jqXHR.responseText);
+                  const response = JSON.parse(jqXHR.responseText);
+                  Swal.fire({
+                    title: 'Upload Error!',
+                    text: response.msg,
+                    icon: 'error',
+                    confirmButtonText: 'Close'
+                  })
+                }
+            });
+        } else {
+            console.error("The selected element is not an HTML form.");
+        }
+    });
+});
+
+
 </script>
 
+
+<script>
+  function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.startsWith(name + "=")) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+</script>
   
 
 </body>

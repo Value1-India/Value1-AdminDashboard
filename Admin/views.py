@@ -4,7 +4,7 @@ from django.http import HttpResponse, JsonResponse,HttpResponseBadRequest
 from django.template import loader
 from django.conf import settings
 from django.shortcuts import redirect
-import boto3,os
+import boto3,os,datetime
 from weasyprint import HTML
 from Admin import s3_upload
 
@@ -14,11 +14,23 @@ cognito = boto3.client('cognito-idp',region_name=os.getenv('AWS_REGION'),
 s3 = boto3.client('s3',region_name=os.getenv('AWS_REGION'),
                           aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
                           aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'))
-
+user_pool_id = settings.AWS_COGNITO_USER_POOL_ID
 
 def login(request):
-    template = loader.get_template('login.html')
-    return HttpResponse(template.render())
+    if request.method == "POST":
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        print('Username:',username)
+        print('Password:', password)
+        if username and password is not None:
+            print('not none')
+            return JsonResponse({'success': True}, content_type='application/json', status=200)
+        else:
+            print('none')
+            return JsonResponse({'success': False}, content_type='application/json', status=400)
+    else:
+        template = loader.get_template('login.html')
+        return HttpResponse(template.render())
 
 def register(request):
     template = loader.get_template('register.html')
@@ -35,10 +47,16 @@ def dashboard(request):
         sts = s3_upload.upload(s3_client=s3, cognito_client=cognito, sub_id=user_id, username=username,
                                bucket_name=bucket_name,
                                file=file, userpool_id=userpool_id)
-        return JsonResponse({'success': True}, content_type='application/json', status=200)
-
+        print(sts[0])
+        if sts[0] is True:
+            os.remove(file)
+            if not os.path.exists(file):
+                print('File Removed')
+                return JsonResponse({'success': True}, content_type='application/json', status=200)
+        elif sts[0] is False:
+            return JsonResponse({'success': False,'msg':'Error while Uploading'}, content_type='application/json', status=400)
     else:
-        user_pool_id = settings.AWS_COGNITO_USER_POOL_ID
+
         response = cognito.list_users(UserPoolId=user_pool_id)
         formatted_data = []
         for user_entry in response['Users']:
@@ -62,32 +80,58 @@ def dashboard(request):
 
         return render(request, 'dashboard.html', {'users': formatted_data})
 
-def generate(request):
-    data = {
-        'date': '15.09.2023',
-        'member_name': 'Boopathy',
-        'member_type': 'Co-Own/Student',
-        'member_id': 'estmynhsbtdum',
-        'fname': 'febh5nusue ttr,ssm',
-        'date_detailed': '15th August 2023',
-        'company_name': 'OOSH LEARNINGS',
-        'head': 'Company Letter Head',
+def get_ordinal_suffix(day):
+    if 10 <= day % 100 <= 20:
+        suffix = 'th'
+    else:
+        suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(day % 10, 'th')
+    return suffix
 
-    }
-    # render(request, 'grant_letter_template.html', {'data': data, 'sign': sign})
-    html_content = render_to_string('grant_letter_template.html', {'data': data})
-    pdf_file = HTML(string=html_content).write_pdf()
-    file_name = 'grantletter.pdf'
-    path = "temp"
-    if not os.path.exists(path):
-        os.makedirs(path)
-    file_path = os.path.join(path, file_name)
-    status = False
-    if pdf_file != None:
-        status=True
-        with open(file_path,'wb') as file:
-            file.write(pdf_file)
-    return JsonResponse({'status': status})
+def generate(request):
+    if request.method == "POST":
+        username = request.POST.get('username')
+        print('username:',username)
+        response = cognito.admin_get_user(
+            UserPoolId=user_pool_id,
+            Username=username
+        )
+        # Initialize an empty dictionary to store the extracted attributes
+        user_attributes = {}
+
+        # Loop through the 'UserAttributes' list and extract the desired attributes
+        for attribute in response['UserAttributes']:
+            if attribute['Name'] in ['given_name', 'middle_name', 'name', 'nickname']:
+                user_attributes[attribute['Name']] = attribute['Value']
+        current_date = datetime.date.today()
+        try:
+            data = {
+                'date': current_date.strftime("%d-%m-%Y"),
+                'member_name': user_attributes['name'],
+                'member_type': user_attributes['given_name'],
+                'member_id': user_attributes['nickname'],
+                'date_detailed': current_date.strftime(f"%d{get_ordinal_suffix(current_date.day)} %B %Y"),
+                'head': 'Company Letter Head',
+                'director_id': '123456'
+            }
+        except KeyError as e:
+            return JsonResponse({'success': False,'msg':'Missing Attribute:'+str(e)},content_type='application/json', status=400)
+        #director signature was store in s3 : https://value1-admindashboard.s3.ap-south-1.amazonaws.com/sign.png
+        #print(data)
+        html_content = render_to_string('grant_letter_template.html', {'data': data})
+        pdf_file = HTML(string=html_content).write_pdf()
+        file_name = 'grantletter.pdf'
+        path = "temp"
+        if not os.path.exists(path):
+            os.makedirs(path)
+        file_path = os.path.join(path, file_name)
+        status = False
+        if pdf_file != None:
+            status=True
+            with open(file_path,'wb') as file:
+                file.write(pdf_file)
+        return JsonResponse({'success': status}, content_type='application/json', status=200)
+    else:
+        return JsonResponse({'success': False}, content_type='application/json', status=400)
 
 def preview(request):
     pdf_file_path = os.path.join(settings.TEMP_FILES, 'grantletter.pdf')

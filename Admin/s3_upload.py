@@ -1,7 +1,7 @@
 def upload(s3_client,cognito_client,sub_id,username,bucket_name,file,userpool_id):
     sub_ids = get_all_sub_ids(cognito_client,userpool_id)
     region = "ap-south-1"
-    filename = 'grant-letter.pdf'
+    filename = 'grantletter.pdf'
     for id in sub_ids:
         if id == sub_id: #sub_id is selected id from frontend
             file_key = f'{id}/{filename}'
@@ -10,10 +10,10 @@ def upload(s3_client,cognito_client,sub_id,username,bucket_name,file,userpool_id
                 object_url = f'https://{bucket_name}.s3.{region}.amazonaws.com/{file_key}'
                 attribute_name = 'website'
                 cognito_data_uploader(cognito_client, userpool_id, username, attribute_name, object_url)
-                return True
+                return True,'File Uploaded to S3'
             except Exception as e:
                 print(f"Error uploading to S3: {str(e)}")
-                return False
+                return False,str(e)
 
 def get_all_sub_ids(client,user_pool_id):
     sub_ids = []

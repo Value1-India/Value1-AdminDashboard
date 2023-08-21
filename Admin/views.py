@@ -29,8 +29,7 @@ def login(request):
             print('none')
             return JsonResponse({'success': False}, content_type='application/json', status=400)
     else:
-        template = loader.get_template('login.html')
-        return HttpResponse(template.render())
+        return render(request, 'login.html')
 
 def register(request):
     template = loader.get_template('register.html')

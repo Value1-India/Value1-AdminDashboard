@@ -180,7 +180,7 @@ def webhook_view(request):
     # Handle the webhook event
     try:
         # Pull the latest code from the GitHub repository
-        pull_code = subprocess.Popen(["git", "pull", "origin", "master"], cwd="/home/ubuntu/Value1-AdminDashboard/", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        pull_code = subprocess.Popen(["git", "pull", "origin", "main"], cwd="/home/ubuntu/Value1-AdminDashboard/", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         pull_stdout, pull_stderr = pull_code.communicate()
 
         if pull_code.returncode != 0:
@@ -190,7 +190,7 @@ def webhook_view(request):
         restart_supervisor = subprocess.Popen(["sudo", "supervisorctl", "restart", "guni:*"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         restart_supervisor.wait()
 
-        restart_nginx = subprocess.Popen(["sudo", "systemctl", "restart", "nginx"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        restart_nginx = subprocess.Popen(["sudo", "service", "nginx", "restart"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         restart_nginx.wait()
 
         if restart_supervisor.returncode != 0 or restart_nginx.returncode != 0:

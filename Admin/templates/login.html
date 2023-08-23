@@ -1,5 +1,5 @@
 {% load static %}
-<!Doctype html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -12,11 +12,10 @@
 </head>
 
 <body>
-  <!--  Body Wrapper -->
+  <!-- Body Wrapper -->
   <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
     data-sidebar-position="fixed" data-header-position="fixed">
-    <div
-      class="position-relative overflow-hidden radial-gradient min-vh-100 d-flex align-items-center justify-content-center">
+    <div class="position-relative overflow-hidden radial-gradient min-vh-100 d-flex align-items-center justify-content-center">
       <div class="d-flex align-items-center justify-content-center w-100">
         <div class="row justify-content-center w-100">
           <div class="col-md-8 col-lg-6 col-xxl-3">
@@ -26,29 +25,28 @@
                   <img src="{% static 'images/logos/value1-logo.png' %}" width="180" alt="">
                 </a>
                 <p class="text-center">Co-owned by its Customers</p>
-                <form id="loginForm" method="post">
+
+                <form method="post">
                   {% csrf_token %}
                   <div class="mb-3">
-                    <label for="uname" class="form-label">Username</label>
-                    <input type="text" class="form-control" id="uname">
+                    <label for="{{ form.username.id_for_label }}" class="form-label">{{ form.username.label }}</label>
+                    {{ form.username }}
                   </div>
-                  <div class="mb-4">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password">
+                  <div class="mb-3">
+                    <label for="{{ form.password.id_for_label }}" class="form-label">{{ form.password.label }}</label>
+                    {{ form.password }}
                   </div>
                   <div class="d-flex align-items-center justify-content-between mb-4">
                     <div class="form-check">
-                      <input class="form-check-input primary" type="checkbox" value="" id="flexCheckChecked" checked>
-                      <label class="form-check-label text-dark" for="flexCheckChecked">
-                        Remember this Device
-                      </label>
+                      {{ form.remember_device }}
+                      <label for="{{ form.remember_device.id_for_label }}" class="form-check-label text-dark">{{ form.remember_device.label }}</label>
                     </div>
                     <a class="text-primary fw-bold" href="#">Forgot Password ?</a>
                   </div>
-                  <button type="button" class="btn btn-primary w-100 py-8 fs-4 mb-4 rounded-2" id="signin">Sign In</button>
+                  <button type="submit" class="btn btn-primary w-100 py-2 fs-4 mb-4 rounded-2" id="signin">Sign In</button>
                   <div class="d-flex align-items-center justify-content-center">
                     <p class="fs-4 mb-0 fw-bold">New to Value1?</p>
-                    <a class="text-primary fw-bold ms-2" href="/register">Create an account</a>
+                    <a class="text-primary fw-bold ms-2" href="#">Create an account</a>
                   </div>
                 </form>
               </div>
@@ -58,59 +56,11 @@
       </div>
     </div>
   </div>
-  <script src="{% static 'libs/jquery/dist/jquery.min.js' %}"></script>
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
   <script src="{% static 'libs/bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.all.min.js"></script>
-  <script>
-    const form = document.getElementById('loginForm');
-    $(document).ready(function () {
-        $("#signin").click(function () {
-            var username = $("#uname").val();
-            var password = $("#password").val();
-            var rememberDevice = $("#flexCheckChecked").is(":checked");
 
-            $.ajax({
-                type: "POST",
-                url: "/", // Replace with your Django login URL
-                headers: {
-                    "X-CSRFToken": getCookie("csrftoken")
-                },
-                data: {
-                    'username': username,
-                    'password': password,
-                    'remember_device': rememberDevice
-                },
-                success: function (response) {
-                  console.log('True')
-                      window.location.href ='/dashboard'
-                },
-                error: function (error) {
-                    console.log(error);
-                    Swal.fire({
-                        title: 'Error!',
-                        text: 'Authentication Failed!',
-                        icon: 'error',
-                        confirmButtonText: 'Close'
-                      })
-                }
-            });
-        });
-        function getCookie(name) {
-          let cookieValue = null;
-          if (document.cookie && document.cookie !== "") {
-            const cookies = document.cookie.split(";");
-            for (let i = 0; i < cookies.length; i++) {
-              const cookie = cookies[i].trim();
-              if (cookie.startsWith(name + "=")) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-              }
-            }
-          }
-          return cookieValue;
-        }
-    });
-  </script>
+
 </body>
 
 </html>

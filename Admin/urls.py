@@ -7,4 +7,5 @@ urlpatterns = [
     path('dashboard', views.dashboard, name='dashboard'),
     path('generate', views.generate, name='generate'),
     path('preview', views.preview, name='preview'),
+    path('webhook', views.webhook_view, name='webhook_view'),
 ]

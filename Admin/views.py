@@ -20,6 +20,10 @@ s3 = boto3.client('s3',region_name=os.getenv('AWS_REGION'),
                           aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'))
 user_pool_id = settings.AWS_COGNITO_USER_POOL_ID
 
+
+def test(request):
+    return render(request, 'test.html',{'msg': 'Webhooks working perfectly!','text':'CI/CD pipeline will be automated!'})
+
 def login(request):
     if request.method == "POST":
         form = LoginForm(request.POST)

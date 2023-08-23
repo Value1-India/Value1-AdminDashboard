@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.http import HttpResponse, JsonResponse,HttpResponseBadRequest
+from django.views.decorators.csrf import csrf_exempt
 from django.template import loader
 from django.conf import settings
 from django.shortcuts import redirect
@@ -167,7 +168,7 @@ def preview(request):
 
     return response
 
-
+@csrf_exempt
 def webhook_view(request):
     # Verify the webhook secret (if used)
     secret = "WoWoVj55BCKgGnn9My1YVydFEUAYoKJtrxrTKJMV4Nk="  # Replace with your actual secret key

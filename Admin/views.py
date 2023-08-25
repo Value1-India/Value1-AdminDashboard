@@ -13,14 +13,14 @@ import subprocess,hashlib,hmac
 
 
 
-cognito = boto3.client('cognito-idp',region_name=settings.AWS_REGION,
-                          aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-                          aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
-s3 = boto3.client('s3',region_name=settings.AWS_REGION,
-                  aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-                  aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
-user_pool_id = settings.AWS_COGNITO_USER_POOL_ID
-
+cognito = boto3.client('cognito-idp',region_name=os.environ.get("AWS_REGION"),
+                          aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),
+                          aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'))
+s3 = boto3.client('s3',region_name=os.environ.get("AWS_REGION"),
+                  aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),
+                  aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'))
+user_pool_id = os.environ.get("AWS_COGNITO_USER_POOL_ID")
+bucket_name = 'value1-admindashboard'
 
 def test(request):
     return render(request, 'test.html',{'msg': 'Webhooks working perfectly!','text':'CI/CD pipeline will be automated!'})
@@ -54,12 +54,12 @@ def dashboard(request):
         user_id = request.POST.get('user_sub')
         username = request.POST.get('user_username')
         print(username)
-        bucket_name = 'value1-admindashboard'
-        userpool_id = settings.AWS_COGNITO_USER_POOL_ID
+        #bucket_name = 'value1-admindashboard'
+        #userpool_id = settings.AWS_COGNITO_USER_POOL_ID
         file = os.path.join(settings.TEMP_FILES, 'grantletter.pdf')
         sts = s3_upload.upload(s3_client=s3, cognito_client=cognito, sub_id=user_id, username=username,
                                bucket_name=bucket_name,
-                               file=file, userpool_id=userpool_id)
+                               file=file, userpool_id=user_pool_id)
         print(sts[0])
         if sts[0] is True:
             os.remove(file)

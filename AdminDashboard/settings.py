@@ -22,13 +22,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY ='django-insecure-i)_9wnm6unq%(9$ft#_h!970z*g6*70e(8n*2omy9-4-99ojz&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-
-ALLOWED_HOSTS = ['*','admin.value1.in']
+ALLOWED_HOSTS = ['ec2-3-111-55-134.ap-south-1.compute.amazonaws.com','3.111.55.134','admin.value1.in','*']
 
 
 # Application definition
@@ -124,6 +123,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
+#PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
@@ -143,12 +143,13 @@ AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 
 #/home/ubuntu/Value1-AdminDashboard/AdminDashboard/static
 
-CORS_ALLOW_ALL_ORIGINS = True
 
-CORS_TRUSTED_ORIGINS = [
-    "https://admin.value1.in",
+CORS_ALLOW_ALL_ORIGINS = False
+
+CSRF_TRUSTED_ORIGINS = [
+   "https://admin.value1.in",
 ]
-
-CORS_ALLOW_ORIGINS =[
-    "https://admin.value1.in",
+CORS_ALLOW_ORIGINS = [
+    "https://admin.value1.in",  # Add your trusted domain here
+    # Add more trusted domains if needed
 ]

@@ -196,7 +196,7 @@ def webhook_view(request):
                                  "supervisor_stderr": restart_supervisor.stderr.decode('utf-8'),
                                  "nginx_stderr": restart_nginx.stderr.decode('utf-8')}, status=500)
 
-        return JsonResponse({"message": "Webhook received and processed successfully"})
+        return JsonResponse({"message": "Webhook received and processed successfully"},status=500)
 
     except Exception as e:
         return JsonResponse({"message": f"An error occurred: {str(e)}"}, status=500)

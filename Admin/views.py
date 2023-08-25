@@ -13,12 +13,12 @@ import subprocess,hashlib,hmac
 
 
 
-cognito = boto3.client('cognito-idp',region_name=os.getenv('AWS_REGION'),
-                          aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
-                          aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'))
-s3 = boto3.client('s3',region_name=os.getenv('AWS_REGION'),
-                          aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
-                          aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'))
+cognito = boto3.client('cognito-idp',region_name=settings.AWS_REGION,
+                          aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                          aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
+s3 = boto3.client('s3',region_name=settings.AWS_REGION,
+                  aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                  aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
 user_pool_id = settings.AWS_COGNITO_USER_POOL_ID
 
 

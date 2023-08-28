@@ -114,6 +114,7 @@ def generate(request):
             if attribute['Name'] in ['given_name', 'middle_name', 'name', 'nickname']:
                 user_attributes[attribute['Name']] = attribute['Value']
         current_date = datetime.date.today()
+        print(current_date)
         try:
             if user_attributes['given_name'] == 'C':
                 user_attributes['given_name'] = 'Co-Own'
@@ -165,6 +166,17 @@ def preview(request):
     response['Content-Disposition'] = 'inline; filename="preview.pdf"'
 
     return response
+
+def cleanup(request):
+    pdf_file_path = os.path.join(settings.TEMP_FILES, 'grantletter.pdf')
+    if not os.path.exists(pdf_file_path):
+        print('no file')
+        return JsonResponse({'success': True}, content_type='application/json', status=200)
+    else:
+        print('file found')
+        os.remove(pdf_file_path)
+        print('file removed')
+        return JsonResponse({'success': True}, content_type='application/json', status=200)
 
 @csrf_exempt
 def webhook_view(request):

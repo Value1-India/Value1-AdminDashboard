@@ -278,7 +278,8 @@
                         <button type="button" class="btn btn-outline-danger m-2 btn-sm upload-button">Upload File</button>
                     </div>
                     <div>
-                      <button type="button" class="btn btn-danger d-flex flex-column align-items-center justify-content-center" data-bs-dismiss="modal" aria-label="Close">Close</button>
+                      <!-- <button type="button" class="btn btn-danger d-flex flex-column align-items-center justify-content-center" data-bs-dismiss="modal" aria-label="Close">Close</button> -->
+                      <button id="closeButton" type="button" class="btn btn-danger d-flex flex-column align-items-center justify-content-center" onclick="cleanUp('{{ user.sub }}')" aria-label="Close">Close</button>
                     </div>
                 </div>
               </div>
@@ -320,7 +321,7 @@
         <!-- Modals -->
         <!-- Footer -->
         <footer class="footer py-6 px-6 text-center">
-          <p class="mb-0 fs-4">Developed by <a href="https://heptre.com/" target="_blank" class="pe-1 text-primary text-decoration-underline">HeptreTechworks</a></p>
+          <p class="mb-0 fs-4">Developed by <a href="https://heptre.com/" target="_blank" class="pe-1 text-primary text-decoration-underline">Heptre Techworks</a></p>
         </footer>
       </div>
     </div>
@@ -432,8 +433,6 @@
   </script>
   <script>
     function generateGrantLetter(username,sub) {
-    console.log('Function called with username:', username);
-
     $.ajax({
         type: 'POST',
         url: 'generate', // Verify that this URL is correct
@@ -463,7 +462,30 @@
     });
 }
 </script>
-
+  
+<script>
+  function cleanUp(id) {
+  $.ajax({
+      type: 'GET',
+      url: 'cleanup', // Verify that this URL is correct
+      headers: {
+            "X-CSRFToken": getCookie("csrftoken")
+      },
+      
+      success: function(response) {
+          $('#uploadModal'+id).modal('hide');
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+                const response = JSON.parse(jqXHR.responseText);
+                Swal.fire({
+                  title: 'Error!',
+                  icon: 'error',
+                  confirmButtonText: 'Close'
+                })
+      }
+  });
+}
+</script>
 <!-- <script>
   document.addEventListener("DOMContentLoaded", function() {
     const uploadButtons = document.querySelectorAll(".upload-button");

@@ -596,8 +596,8 @@
                     modal.attr("aria-hidden", "true");
 
                     Swal.fire({
-                        title: 'Auto close alert!',
-                        html: 'I will close in <b></b> milliseconds.',
+                        title: 'Uploaded Successfully!',
+                        html: 'This alert will closed in <b></b> milliseconds.',
                         timer: 2000,
                         timerProgressBar: true,
                         didOpen: function () {
@@ -612,7 +612,7 @@
                         }
                     }).then(function (result) {
                         if (result.dismiss === Swal.DismissReason.timer) {
-                            console.log('I was closed by the timer');
+                            console.log('Upload alert Closed!');
                             window.location.reload();
                         }
                     });

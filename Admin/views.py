@@ -23,7 +23,7 @@ user_pool_id = settings.AWS_COGNITO_USER_POOL_ID
 bucket_name = 'value1-admindashboard'
 
 def test(request):
-    return render(request, 'test.html',{'msg': 'Webhooks working perfectly!','text':'CI/CD pipeline will be automated!'})
+    return render(request, 'test.html',{'msg': 'Webhooks working perfectly!','text':'CI/CD pipeline will be automated! Auth Added!'})
 
 def login(request):
     if request.method == "POST":
@@ -32,15 +32,11 @@ def login(request):
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
             remember_device = form.cleaned_data['remember_device']
-            print('Username:',username)
-            print('Password:', password)
-            if username and password is not None:
-                print('not none')
-                return redirect('dashboard')
-                #return JsonResponse({'success': True}, content_type='application/json', status=200)
+            if username == os.getenv('ADMIN_ID') and password == os.getenv('ADMIN_PASSWORD'):
+                #return redirect('dashboard')
+                return JsonResponse({'success': True}, content_type='application/json', status=200)
             else:
-                print('none')
-                return JsonResponse({'success': False,'msg':'All fields must be filled'}, content_type='application/json', status=400)
+                return JsonResponse({'success': False,'msg':'Invalid Credentials!'}, content_type='application/json', status=400)
     else:
         form = LoginForm()
     return render(request, 'login.html',{'form': form})
@@ -170,12 +166,9 @@ def preview(request):
 def cleanup(request):
     pdf_file_path = os.path.join(settings.TEMP_FILES, 'grantletter.pdf')
     if not os.path.exists(pdf_file_path):
-        print('no file')
         return JsonResponse({'success': True}, content_type='application/json', status=200)
     else:
-        print('file found')
         os.remove(pdf_file_path)
-        print('file removed')
         return JsonResponse({'success': True}, content_type='application/json', status=200)
 
 @csrf_exempt

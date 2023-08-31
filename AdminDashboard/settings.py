@@ -153,3 +153,4 @@ CORS_ALLOW_ORIGINS = [
     "https://admin.value1.in",  # Add your trusted domain here
     # Add more trusted domains if needed
 ]
+

@@ -61,6 +61,57 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.all.min.js"></script>
 
 
+  <script>
+    $(document).ready(function () {
+        $('form').on('submit', function (e) {
+            e.preventDefault(); // Prevent the form from submitting normally
+            
+            // Perform an AJAX POST request to your login view
+            $.ajax({
+                type: 'POST',
+                url: '/login',  // Replace with the actual URL
+                data: $(this).serialize(),
+                success: function (data) {
+                    if (data.success) {
+                        // Authentication succeeded, show success SweetAlert
+                        const Toast = Swal.mixin({
+                          toast: true,
+                          position: 'top-end',
+                          showConfirmButton: false,
+                          timer: 1000,
+                          timerProgressBar: true,
+                          didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer)
+                            toast.addEventListener('mouseleave', Swal.resumeTimer)
+                          }
+                        })
+
+                        Toast.fire({
+                          icon: 'success',
+                          title: 'Signed in successfully'
+                        }).then(function() {
+                            // Redirect to the dashboard or perform any other actions
+                            window.location.href = 'dashboard';
+                        });
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                  console.error("AJAX Error:", textStatus, errorThrown);
+                  console.log("Response:", jqXHR.responseText);
+                  const response = JSON.parse(jqXHR.responseText);
+                  Swal.fire({
+                    title: 'Authentication Error!',
+                    text: response.msg,
+                    icon: 'error',
+                    confirmButtonText: 'Close'
+                  })
+        }
+            });
+        });
+    });
+    </script>
+    
+
 </body>
 
 </html>

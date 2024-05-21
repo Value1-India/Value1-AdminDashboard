@@ -32,7 +32,7 @@ user_pool_id = settings.AWS_COGNITO_USER_POOL_ID
 bucket_name = 'value1-admindashboard'
 
 def test(request):
-    return render(request, 'test.html',{'msg': 'Webhooks working perfectly!','text':'CI/CD pipeline will be automated! Auth Added!'})
+    return render(request, 'test.html',{'msg': 'Webhooks working perfectly!','text':'CI/CD pipeline will be automated!'})
 
 def login(request):
     if request.method == "POST":

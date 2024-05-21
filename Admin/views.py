@@ -22,11 +22,7 @@ user_pool_id = settings.AWS_COGNITO_USER_POOL_ID
 bucket_name = 'value1-admindashboard'
 
 def test(request):
-    print(datetime.datetime.now())
-    print("AWS_REGION:", os.getenv('AWS_REGION'))
-    print("AWS_ACCESS_KEY_ID:", os.getenv('AWS_ACCESS_KEY_ID'))
-    print("AWS_SECRET_ACCESS_KEY:", os.getenv('AWS_SECRET_ACCESS_KEY'))
-    return render(request, 'test.html',{'msg': 'Webhooks working perfectly!','text':os.getenv('AWS_ACCESS_KEY_ID')})
+    return render(request, 'test.html',{'msg': 'Webhooks working perfectly!','text':"Application is Online"})
 
 def login(request):
     if request.method == "POST":
@@ -52,12 +48,10 @@ def dashboard(request):
     if request.method == "POST":
         user_id = request.POST.get('user_sub')
         username = request.POST.get('user_username')
-        print(username)
         file = os.path.join(settings.TEMP_FILES, 'grantletter.pdf')
         sts = s3_upload.upload(s3_client=s3, cognito_client=cognito, sub_id=user_id, username=username,
                                bucket_name=bucket_name,
                                file=file, userpool_id=user_pool_id)
-        print(sts[0])
         if sts[0] is True:
             os.remove(file)
             if not os.path.exists(file):
@@ -66,9 +60,7 @@ def dashboard(request):
         elif sts[0] is False:
             return JsonResponse({'success': False,'msg':'Error while Uploading'}, content_type='application/json', status=400)
     else:
-        print("AWS_REGION:", os.getenv('AWS_REGION'))
-        print("AWS_ACCESS_KEY_ID:", os.getenv('AWS_ACCESS_KEY_ID'))
-        print("AWS_SECRET_ACCESS_KEY:", os.getenv('AWS_SECRET_ACCESS_KEY'))
+
         response = cognito.list_users(UserPoolId=user_pool_id)
         formatted_data = []
         for user_entry in response['Users']:
@@ -102,7 +94,6 @@ def get_ordinal_suffix(day):
 def generate(request):
     if request.method == "POST":
         username = request.POST.get('username')
-        print('username:',username)
         response = cognito.admin_get_user(
             UserPoolId=user_pool_id,
             Username=username
@@ -115,7 +106,7 @@ def generate(request):
             if attribute['Name'] in ['given_name', 'middle_name', 'name', 'nickname']:
                 user_attributes[attribute['Name']] = attribute['Value']
         current_date = datetime.date.today()
-        print(current_date)
+
         try:
             if user_attributes['given_name'] == 'C':
                 user_attributes['given_name'] = 'Co-Own'

@@ -26,7 +26,7 @@ def test(request):
     print("AWS_REGION:", os.getenv('AWS_REGION'))
     print("AWS_ACCESS_KEY_ID:", os.getenv('AWS_ACCESS_KEY_ID'))
     print("AWS_SECRET_ACCESS_KEY:", os.getenv('AWS_SECRET_ACCESS_KEY'))
-    return render(request, 'test.html',{'msg': 'Webhooks working perfectly!','text':'CI/CD pipeline will be automated! Auth Added!'})
+    return render(request, 'test.html',{'msg': 'Webhooks working perfectly!','text':os.getenv('AWS_ACCESS_KEY_ID')})
 
 def login(request):
     if request.method == "POST":

@@ -10,21 +10,28 @@ from weasyprint import HTML
 from Admin import s3_upload
 from .forms import LoginForm
 import subprocess,hashlib,hmac
+from botocore.exceptions import NoCredentialsError, PartialCredentialsError
 
+def get_boto3_client(service_name):
+    try:
+        client = boto3.client(
+            service_name,
+            region_name=os.getenv('AWS_REGION')
+        )
+        return client
+    except NoCredentialsError:
+        print("Credentials not available")
+    except PartialCredentialsError:
+        print("Incomplete credentials provided")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
-cognito = boto3.client('cognito-idp',region_name=os.getenv('AWS_REGION'),
-                          aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
-                          aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'))
-s3 = boto3.client('s3',region_name=os.getenv('AWS_REGION'),
-                          aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
-                          aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'))
+cognito = get_boto3_client('cognito-idp')
+s3 = get_boto3_client('s3')
 user_pool_id = settings.AWS_COGNITO_USER_POOL_ID
 bucket_name = 'value1-admindashboard'
 
 def test(request):
-    print("AWS_REGION:", os.getenv('AWS_REGION'))
-    print("AWS_ACCESS_KEY_ID:", os.getenv('AWS_ACCESS_KEY_ID'))
-    print("AWS_SECRET_ACCESS_KEY:", os.getenv('AWS_SECRET_ACCESS_KEY'))
     return render(request, 'test.html',{'msg': 'Webhooks working perfectly!','text':'CI/CD pipeline will be automated! Auth Added!'})
 
 def login(request):
@@ -65,9 +72,6 @@ def dashboard(request):
         elif sts[0] is False:
             return JsonResponse({'success': False,'msg':'Error while Uploading'}, content_type='application/json', status=400)
     else:
-        print("AWS_REGION:", os.getenv('AWS_REGION'))
-        print("AWS_ACCESS_KEY_ID:", os.getenv('AWS_ACCESS_KEY_ID'))
-        print("AWS_SECRET_ACCESS_KEY:", os.getenv('AWS_SECRET_ACCESS_KEY'))
         response = cognito.list_users(UserPoolId=user_pool_id)
         formatted_data = []
         for user_entry in response['Users']:

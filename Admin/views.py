@@ -21,10 +21,6 @@ s3 = boto3.client('s3',region_name=os.getenv('AWS_REGION'),
 user_pool_id = settings.AWS_COGNITO_USER_POOL_ID
 bucket_name = 'value1-admindashboard'
 
-print("AWS_REGION:", os.getenv('AWS_REGION'))
-print("AWS_ACCESS_KEY_ID:", os.getenv('AWS_ACCESS_KEY_ID'))
-print("AWS_SECRET_ACCESS_KEY:", os.getenv('AWS_SECRET_ACCESS_KEY'))
-
 def test(request):
     return render(request, 'test.html',{'msg': 'Webhooks working perfectly!','text':'CI/CD pipeline will be automated! Auth Added!'})
 
@@ -66,7 +62,9 @@ def dashboard(request):
         elif sts[0] is False:
             return JsonResponse({'success': False,'msg':'Error while Uploading'}, content_type='application/json', status=400)
     else:
-
+        print("AWS_REGION:", os.getenv('AWS_REGION'))
+        print("AWS_ACCESS_KEY_ID:", os.getenv('AWS_ACCESS_KEY_ID'))
+        print("AWS_SECRET_ACCESS_KEY:", os.getenv('AWS_SECRET_ACCESS_KEY'))
         response = cognito.list_users(UserPoolId=user_pool_id)
         formatted_data = []
         for user_entry in response['Users']:
